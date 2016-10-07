@@ -2,9 +2,8 @@
 
 import subprocess
 import sys
+sys.path.append("lib")
 import threading
-import time
-sys.path.append("dir")
 
 from flask import Flask, request, Response
 app = Flask(__name__)
@@ -50,7 +49,7 @@ class Report(Status):
         self.stdout = b''
         self.stderr = b''
 
-    def on(self, process):
+    def save_data(self, process):
         self.add_stdout(process)
         self.add_stderr(process)
 
@@ -64,15 +63,19 @@ class Report(Status):
         return "<Report: {}, {}, {}>".format(super().__repr__(), len(self.stdout), len(self.stderr))
 
 
-def get_title_and_description(url, report):
+def get_title_and_description(url):
+    if url in DOWNLOADS:
+        return
+    report = Report()
+    DOWNLOADS[url] = report
+
     proc = subprocess.Popen(
         ['youtube-dl', '--get-title', '--get-description', url],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
     report.working()
     rc = proc.wait()
 
-    report.on(proc)
+    report.save_data(proc)
     if rc:
         report.failed()
         return (None, None)
@@ -84,23 +87,55 @@ def get_title_and_description(url, report):
     return (title, description)
 
 
+def download_video_or_audio(url, audio_video):
+    if audio_video not in ('A', 'V'):
+        return
+
+    if url in DOWNLOADS:
+        return
+    report = Report()
+    DOWNLOADS[url] = report
+
+    audio_video_spec = "{}bestaudio[ext=m4a]".format('bestvideo[mp4]+' if audio_video == 'V' else '')
+
+    proc = subprocess.Popen(
+        ['youtube-dl', '-f', audio_video_spec, url],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    report.working()
+    rc = proc.wait()
+
+    report.save_data(proc)
+    if rc:
+        report.failed()
+    report.success()
+    return
+
+
 @app.route('/heartbeat', methods=['GET'])
 def heartbeat():
     return ('', 200)
+
+
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+
+
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+    shutdown_server()
+    return 'Server shutting down...'
 
 
 @app.route('/download', methods=['POST'])
 def download():
     data = request.get_json()
     url = data['url']
+    audio_video = data['audio_video']
 
-    if url in DOWNLOADS:
-        return ('', 202)
-
-    report = Report()
-    DOWNLOADS[url] = report
-
-    args = (url, report)
+    args = (url, audio_video)
     t = threading.Thread(target=get_title_and_description, args=args)
     t.start()
 

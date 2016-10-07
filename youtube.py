@@ -1,26 +1,39 @@
 #!/usr/local/bin/python3
 
 import argparse
-import subprocess
+import sys
+sys.path.append("lib")
 
+import requests
 
-def get_title_and_description(url):
-    proc = subprocess.Popen(
-        ['youtube-dl', '--get-title', '--get-description', url],
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+import settings
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("url")
+    parser.add_argument("command", help="command or URL")
 
-    args = parser.parse_args()
-    return vars(args)
+    return parser.parse_args()
 
 
 def main():
     args = parse_args()
-    url = args['url']
+    command = args.command
+
+    if not command:
+        return  # list
+
+    if command.isdigit():
+        return  # list
+
+    if command == 'shutdown':
+        print("Attempting shutdown...")
+        try:
+            resp = requests.post("http://127.0.0.1:{port}/shutdown".format(port=settings.SERVICE_PORT))
+            print("?")
+        except requests.exceptions.ConnectionError as err:
+            print("Service wasn't running or couldn't connect!")
+        return
 
     inp = input("Do you also want the [V]ideo or [A]udio (V/A/n)? ")
 
