@@ -1,2 +1,5 @@
 http://flask.pocoo.org/docs/0.11/quickstart/
 http://blog.luisrei.com/articles/flaskrest.html
+
+curl -X POST 127.0.0.1:14145/download -H "Content-type: application/json" -d "{'url': 'https://www.youtube.com/watch?v=_VuCrQ_Rz_A'}"
+
