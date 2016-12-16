@@ -12,8 +12,12 @@ if not app.debug:
     file_handler.setLevel(logging.DEBUG)
     app.logger.addHandler(file_handler)
 
-from . import manager
-from . import settings
+try:
+    from . import manager
+    from . import settings
+except SystemError:
+    import manager
+    import settings
 
 
 MANAGER = manager.DownloadManager()

@@ -1,6 +1,10 @@
 
-from . import marshalling
-from .report import Report
+try:
+    from . import marshalling
+    from .report import Report
+except SystemError:
+    import marshalling
+    from report import Report
 
 
 class YoutubeVideo(marshalling.Serializable):

@@ -1,5 +1,8 @@
 
-from . import marshalling
+try:
+    from . import marshalling
+except SystemError:
+    import marshalling
 
 
 class Status(object):

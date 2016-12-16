@@ -4,11 +4,18 @@ import argparse
 import subprocess
 import time
 
-from . import clienterrors
-from . import marshalling
-from . import settings
-from . import utils
-from .videodata import YoutubeVideo
+try:
+    from . import clienterrors
+    from . import marshalling
+    from . import settings
+    from . import utils
+    from .videodata import YoutubeVideo
+except SystemError:
+    import clienterrors
+    import marshalling
+    import settings
+    import utils
+    from videodata import YoutubeVideo
 
 import requests  # this must be below the settings import so we can add /lib
 

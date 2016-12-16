@@ -2,10 +2,17 @@
 import collections
 import subprocess
 
-from . import marshalling
-from . import settings
-from . import utils
-from .videodata import YoutubeVideo
+
+try:
+    from . import marshalling
+    from . import settings
+    from . import utils
+    from .videodata import YoutubeVideo
+except SystemError:
+    import marshalling
+    import settings
+    import utils
+    from videodata import YoutubeVideo
 
 
 def get_path_of_download(stdout):
