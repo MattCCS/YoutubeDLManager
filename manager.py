@@ -2,19 +2,22 @@
 import collections
 import subprocess
 
-from . import marshalling
-from . import settings
-from . import utils
-from .videodata import YoutubeVideo
+from youtube import marshalling
+from youtube import settings
+from youtube import utils
+from youtube.videodata import YoutubeVideo
 
 
 def get_path_of_download(stdout):
     MERGING = "Merging formats into \""
     ALREADY = " has already been downloaded"
-    if ALREADY in stdout:
-        return stdout.split(ALREADY, 1)[0].split('\n[download] ')[-1]
-    else:
-        return stdout.split(MERGING)[1].split("\"\n", 1)[0]
+    try:
+        if ALREADY in stdout:
+            return stdout.split(ALREADY, 1)[0].split('\n[download] ')[-1]
+        else:
+            return stdout.split(MERGING)[1].split("\"\n", 1)[0]
+    except IndexError as exc:
+        raise RuntimeError(stdout)
 
 
 class DownloadManager(marshalling.Serializable):

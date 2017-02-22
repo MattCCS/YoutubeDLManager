@@ -4,17 +4,17 @@ import argparse
 import subprocess
 import time
 
-from . import clienterrors
-from . import marshalling
-from . import settings
-from . import utils
-from .videodata import YoutubeVideo
+from youtube import clienterrors
+from youtube import marshalling
+from youtube import settings
+from youtube import utils
+from youtube.videodata import YoutubeVideo
 
 import requests  # this must be below the settings import so we can add /lib
 
 
 def parse_args():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Downloads the given YouTube URL")
     parser.add_argument("command", help="command or URL")
 
     return parser.parse_args()
@@ -49,7 +49,7 @@ def format_entry(entry):
 def start_service():
     service_log = open("service.log", 'a')
     subprocess.Popen(
-        ['python3', 'service.py' ''],
+        [str(settings.ROOT / 'commands' / 'my-youtube-start')],
         stdout=service_log, stderr=service_log
     )
 

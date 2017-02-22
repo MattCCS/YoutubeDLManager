@@ -1,5 +1,5 @@
 
-from . import marshalling
+from youtube import marshalling
 
 
 class Status(object):

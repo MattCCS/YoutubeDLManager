@@ -1,8 +1,11 @@
 #!/usr/local/bin/python3
 
+import argparse
 import json
 import sys
-sys.path.append("lib")
+
+from youtube import manager
+from youtube import settings
 
 from flask import Flask, request, Response
 app = Flask(__name__)
@@ -11,9 +14,6 @@ if not app.debug:
     file_handler = logging.FileHandler('service.log')
     file_handler.setLevel(logging.DEBUG)
     app.logger.addHandler(file_handler)
-
-from . import manager
-from . import settings
 
 
 MANAGER = manager.DownloadManager()
@@ -46,4 +46,10 @@ def report():
 
 
 if __name__ == '__main__':
-    app.run(port=settings.SERVICE_PORT, threaded=True)
+    try:
+        app.run(port=settings.SERVICE_PORT, threaded=True)
+    except OSError as exc:
+        if exc.errno == 48:
+            print("Service is already running.")
+        else:
+            raise exc

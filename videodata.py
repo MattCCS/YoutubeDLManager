@@ -1,6 +1,6 @@
 
-from . import marshalling
-from .report import Report
+from youtube import marshalling
+from youtube.report import Report
 
 
 class YoutubeVideo(marshalling.Serializable):
